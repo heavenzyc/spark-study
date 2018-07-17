@@ -1,12 +1,12 @@
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Row, SparkSession}
 
 object SparkSql {
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf().setAppName("SparkSQLDemo")
     sparkConf.setMaster("local")
     val spark = SparkSession.builder().appName("SparkSQLDemo").config(sparkConf).getOrCreate()
-    System.setProperty("hadoop.home.dir", "D:\\winutils\\bin")
+    System.setProperty("hadoop.home.dir", "D:\\winutils")
     runJDBCDataSource(spark)
 //    loadDataSourceFromeJson(spark)
 //    loadDataSourceFromeParquet(spark)
@@ -24,10 +24,17 @@ object SparkSql {
     //jdbcDF.select("username", "name", "telephone").write.format("json").save("src/main/resources/sec_users")
 
     //存储成为一张虚表user_abel
-    var df = jdbcDF.select("user_name", "email", "mobile")//.write.mode("overwrite").saveAsTable("user_abel")
-    val jdbcSQl = spark.sql("select * from user_abel where name like '王%' ")
+    var df = jdbcDF.select("user_name", "email", "mobile")
+    df.show();
+    var rows = df.collect();
+    println(rows)
+    for (row <- rows if row.get(0) == "张玉超") {
+      println(row)
+    }
+    df.write.mode("overwrite").saveAsTable("user_abel")
+    val jdbcSQl = spark.sql("select * from user_abel where user_name like '张%' ")
     jdbcSQl.show()
-    jdbcSQl.write.format("json").save("./out/resulted")
+//    jdbcSQl.write.format("json").save("./out/resulted")
   }
 
   private def loadDataSourceFromeJson(spark: SparkSession): Unit = {
