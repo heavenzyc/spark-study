@@ -15,25 +15,33 @@ object SparkSql {
   }
 
   private def runJDBCDataSource(spark: SparkSession): Unit = {
-    val jdbcDF = spark.read
-      .format("jdbc")
-      .option("url", "jdbc:mysql://localhost:3306/fruit-erp?user=root&password=heaven")
+    val jdbcDF = spark.read.format("jdbc")
+      .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
       .option("dbtable", "erp_base_user") //必须写表名
-      .load()
+      .load().select("id", "badge_no", "gender")
+    val jdbcDF1 = spark.read.format("jdbc")
+      .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
+      .option("dbtable", "erp_user_role") //必须写表名
+      .load().select("user_id")
 //    jdbcDF.select("user_name", "email", "mobile").write.format("parquet").save("src/main/resources/sec_users")
     //jdbcDF.select("username", "name", "telephone").write.format("json").save("src/main/resources/sec_users")
+    var joinDF = jdbcDF1.join(jdbcDF , jdbcDF1("user_id" ) === jdbcDF( "id"))
+    joinDF.show(10)
+    var group = joinDF.groupBy(jdbcDF("badge_no"))
+    group.count().orderBy("count")
+    var rows = joinDF.groupBy(jdbcDF("gender")).count().collect()
+    for (row <- rows)
+      println(row)
 
+//    group.count().show()
     //存储成为一张虚表user_abel
-    var df = jdbcDF.select("user_name", "email", "mobile")
+    /*var df = jdbcDF.select("user_name", "email", "mobile")
     df.show();
     var rows = df.collect();
     println(rows)
-    for (row <- rows if row.get(0) == "张玉超") {
-      println(row)
-    }
     df.write.mode("overwrite").saveAsTable("user_abel")
-    val jdbcSQl = spark.sql("select * from user_abel where user_name like '张%' ")
-    jdbcSQl.show()
+    val jdbcSQl = spark.sql("select * from user_abel where user_name like '小%' ")
+    jdbcSQl.show()*/
 //    jdbcSQl.write.format("json").save("./out/resulted")
   }
 
