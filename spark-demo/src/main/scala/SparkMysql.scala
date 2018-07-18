@@ -9,11 +9,11 @@ object SparkMysql {
   }
 
   def conn(): Seq[String] = {
-    val user = "root"
-    val password = "heaven"
-    val host = "localhost"
-    val database = "fruit-erp"
-    val conn_str = "jdbc:mysql://" + host + ":3306/" + database + "?user=" + user + "&password=" + password
+    val user = "wumart"
+    val password = "!QAZxsw2"
+    val host = "192.168.8.207"
+    val database = "dmall_erp"
+    val conn_str = "jdbc:mysql://" + host + ":13306/" + database + "?user=" + user + "&password=" + password
     //classOf[com.mysql.jdbc.Driver]
     Class.forName("com.mysql.jdbc.Driver").newInstance();
     val conn = DriverManager.getConnection(conn_str)
@@ -23,7 +23,7 @@ object SparkMysql {
       val statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
 
       // Execute Query，查询用户表 sec_user 是我的用户表，有name属性。
-      val rs = statement.executeQuery("select * from erp_base_user")
+      val rs = statement.executeQuery("select * from erp_base_user limit 10")
       // Iterate Over ResultSet
 
       while (rs.next) {

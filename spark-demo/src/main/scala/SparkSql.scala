@@ -4,9 +4,9 @@ import org.apache.spark.sql.{Row, SparkSession}
 object SparkSql {
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf().setAppName("SparkSQLDemo")
-    sparkConf.setMaster("local")
+//    sparkConf.setMaster("local")
     val spark = SparkSession.builder().appName("SparkSQLDemo").config(sparkConf).getOrCreate()
-    System.setProperty("hadoop.home.dir", "D:\\winutils")
+//    System.setProperty("hadoop.home.dir", "D:\\winutils")
     runJDBCDataSource(spark)
 //    loadDataSourceFromeJson(spark)
 //    loadDataSourceFromeParquet(spark)
@@ -17,10 +17,12 @@ object SparkSql {
   private def runJDBCDataSource(spark: SparkSession): Unit = {
     val jdbcDF = spark.read.format("jdbc")
       .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
+      .option("driver", "com.mysql.jdbc.Driver")
       .option("dbtable", "erp_base_user") //必须写表名
       .load().select("id", "badge_no", "gender")
     val jdbcDF1 = spark.read.format("jdbc")
       .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
+      .option("driver", "com.mysql.jdbc.Driver")
       .option("dbtable", "erp_user_role") //必须写表名
       .load().select("user_id")
 //    jdbcDF.select("user_name", "email", "mobile").write.format("parquet").save("src/main/resources/sec_users")
