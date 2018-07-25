@@ -4,9 +4,9 @@ import org.apache.spark.sql.{Row, SparkSession}
 object SparkSql {
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf().setAppName("SparkSQLDemo")
-//    sparkConf.setMaster("local")
+    sparkConf.setMaster("local")
     val spark = SparkSession.builder().appName("SparkSQLDemo").config(sparkConf).getOrCreate()
-//    System.setProperty("hadoop.home.dir", "D:\\winutils")
+    System.setProperty("hadoop.home.dir", "D:\\winutils")
     runJDBCDataSource(spark)
 //    loadDataSourceFromeJson(spark)
 //    loadDataSourceFromeParquet(spark)
@@ -29,11 +29,12 @@ object SparkSql {
     //jdbcDF.select("username", "name", "telephone").write.format("json").save("src/main/resources/sec_users")
     var joinDF = jdbcDF1.join(jdbcDF , jdbcDF1("user_id" ) === jdbcDF( "id"))
     joinDF.show(10)
-    var group = joinDF.groupBy(jdbcDF("badge_no"))
-    group.count().orderBy("count")
-    var rows = joinDF.groupBy(jdbcDF("gender")).count().collect()
-    for (row <- rows)
-      println(row)
+    joinDF.groupBy("badge_no", "gender").count().show()
+//    var group = joinDF.groupBy(jdbcDF("badge_no"))
+//    group.count().orderBy("count")
+//    var rows = joinDF.groupBy(jdbcDF("gender")).count().collect()
+//    for (row <- rows)
+//      println(row)
 
 //    group.count().show()
     //存储成为一张虚表user_abel
