@@ -6,7 +6,7 @@ object SparkSql {
     val sparkConf = new SparkConf().setAppName("SparkSQLDemo")
     sparkConf.setMaster("local")
     val spark = SparkSession.builder().appName("SparkSQLDemo").config(sparkConf).getOrCreate()
-    System.setProperty("hadoop.home.dir", "D:\\winutils")
+//    System.setProperty("hadoop.home.dir", "D:\\winutils")
     runJDBCDataSource(spark)
 //    loadDataSourceFromeJson(spark)
 //    loadDataSourceFromeParquet(spark)
@@ -16,20 +16,28 @@ object SparkSql {
 
   private def runJDBCDataSource(spark: SparkSession): Unit = {
     val jdbcDF = spark.read.format("jdbc")
-      .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
+      .option("url", "jdbc:mysql://192.168.2.100:3306/fruit-erp?user=root&password=heaven")
       .option("driver", "com.mysql.jdbc.Driver")
       .option("dbtable", "erp_base_user") //必须写表名
-      .load().select("id", "badge_no", "gender")
-    val jdbcDF1 = spark.read.format("jdbc")
-      .option("url", "jdbc:mysql://192.168.8.207:13306/dmall_erp?user=wumart&password=!QAZxsw2")
+      .load().select("id", "badge_no", "gender", "user_status", "user_type").limit(200)
+    var validUser = jdbcDF.filter(line => line.getAs("user_status") == 1)
+    validUser.cache()
+    var num = validUser.count()
+    printf("num=" + num)
+    validUser.show(200)
+    import spark.implicits._
+    var cnt = validUser.groupBy("user_type").count()
+    cnt.show()
+    /*val jdbcDF1 = spark.read.format("jdbc")
+      .option("url", "jdbc:mysql://192.168.2.100:3306/dmall_erp?user=root&password=heaven")
       .option("driver", "com.mysql.jdbc.Driver")
       .option("dbtable", "erp_user_role") //必须写表名
-      .load().select("user_id")
+      .load().select("user_id")*/
 //    jdbcDF.select("user_name", "email", "mobile").write.format("parquet").save("src/main/resources/sec_users")
     //jdbcDF.select("username", "name", "telephone").write.format("json").save("src/main/resources/sec_users")
-    var joinDF = jdbcDF1.join(jdbcDF , jdbcDF1("user_id" ) === jdbcDF( "id"))
+    /*var joinDF = jdbcDF1.join(jdbcDF , jdbcDF1("user_id" ) === jdbcDF( "id"))
     joinDF.show(10)
-    joinDF.groupBy("badge_no", "gender").count().show()
+    joinDF.groupBy("badge_no", "gender").count().show()*/
 //    var group = joinDF.groupBy(jdbcDF("badge_no"))
 //    group.count().orderBy("count")
 //    var rows = joinDF.groupBy(jdbcDF("gender")).count().collect()
