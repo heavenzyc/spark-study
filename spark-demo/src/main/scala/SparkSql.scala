@@ -19,15 +19,19 @@ object SparkSql {
       .option("url", "jdbc:mysql://192.168.2.100:3306/fruit-erp?user=root&password=heaven")
       .option("driver", "com.mysql.jdbc.Driver")
       .option("dbtable", "erp_base_user") //必须写表名
-      .load().select("id", "badge_no", "gender", "user_status", "user_type").limit(200)
+      .load().select("id", "user_name", "badge_no", "gender", "user_status", "user_type").limit(200)
     var validUser = jdbcDF.filter(line => line.getAs("user_status") == 1)
     validUser.cache()
     var num = validUser.count()
     printf("num=" + num)
-    validUser.show(200)
+    validUser.show()
     import spark.implicits._
+    implicit val mapEncoder = org.apache.spark.sql.Encoders.kryo[Map[String, Any]]
     var cnt = validUser.groupBy("user_type").count()
-    cnt.show()
+    validUser.map(user => "user_name:" + user.getAs("user_name")).show()
+    validUser.show()
+    validUser.map(teenager => teenager.getValuesMap[Any](List("user_name", "user_type"))).collect()
+//    cnt.show()
     /*val jdbcDF1 = spark.read.format("jdbc")
       .option("url", "jdbc:mysql://192.168.2.100:3306/dmall_erp?user=root&password=heaven")
       .option("driver", "com.mysql.jdbc.Driver")
