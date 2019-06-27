@@ -13,6 +13,6 @@ object Medusa {
     var sta = spark.sql("select id, sta_name from dmall_erp.erp_sta_info")
     var user = groupInfo.join(baseUser, groupInfo("operate_user_id") === baseUser("id"))
     var all = user.join(dept, user("id") === dept("id")).join(sta, user("id") === sta("id"))
-    all.show()
+    all.select("operate_user_name", "operate_user_id", "cnt", "dep_id", "dep_name", "jobs_id", "sta_name").show()
   }
 }
