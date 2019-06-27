@@ -24,17 +24,6 @@ object Medusa {
   }
 
   def activityUser(spark : SparkSession): Unit = {
-    var activityInfo = spark.sql("""val operate_user_id: Nothing = null
-    val operate_user_name: Nothing = null
-    val count: Nothing = null (1)
-    val from: Nothing = null
-    val where: Nothing = null execute_start_time >=
-    ' 2019 - 02 - 01
-    00:
-    00:
-    00
-    ' val business_type: Nothing = 1
-    val BY: Nothing = null operate_user_id
-      operate_user_name""");
+    var activityInfo = spark.sql("""SELECT operate_user_id, operate_user_name, count(1) cnt  from dmall_medusa.push_activity where execute_start_time>='2019-02-01 00:00:00' and business_type=1  GROUP BY operate_user_id, operate_user_name order by cnt desc""");
   }
 }
